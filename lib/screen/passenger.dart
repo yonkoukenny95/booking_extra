@@ -87,7 +87,7 @@ class _PassengerPageState extends State<PassengerPage> {
         for (var element in resultJson) {
           listTicketTypes.add(TicketType.fromJson(element));
         }
-        //print(listTicketTypes.length);
+        print(listTicketTypes.length);
         _defaultType = listTicketTypes[0];
       } else {
         print(res);
