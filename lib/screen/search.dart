@@ -23,6 +23,7 @@ class _SearchPageState extends State<SearchPage> {
   final dateController = TextEditingController();
   List<Voyage> listVoyage = [];
   DateTime selectedDate;
+  String messageDisplayInVoyage = "Chọn ngày khởi hành và tuyến";
 
   _searchVoyage() async {
     try {
@@ -36,6 +37,9 @@ class _SearchPageState extends State<SearchPage> {
       if (res.statusCode == 200) {
         if (res.contentLength != 0) {
           var resultJson = json.decode(res.body);
+          if(resultJson.length == 0){
+            messageDisplayInVoyage = "Không có chuyến";
+          }
           for (var voyage in resultJson) {
             listVoyage.add(Voyage.fromJson(voyage));
           }
@@ -147,7 +151,7 @@ class _SearchPageState extends State<SearchPage> {
         separatorBuilder: (BuildContext context, int index) => const Divider(),
       );
     } else
-      return Center(child: Text("Chọn ngày khởi hành và tuyến"));
+      return Center(child: Text(messageDisplayInVoyage));
   }
 
   @override

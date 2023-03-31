@@ -26,3 +26,10 @@ To fix this bug just delete all the comments:
 -> Search for \/\/._ with REGEX enabled;
 -> Delete everything but the code in Android Manifest
 -> Have fun
+
+
+------Lỗi liên quan Gradle-----
+Could not initialize class org.codehaus.groovy.runtime.InvokerHelper site:stackoverflow.com
+
+Downgrade Java đang cài trên máy xuống version 8 (cụ thể 8 fix pack 361)
+Check Java version bằng lệnh java -version trong phần Terminal

@@ -2,14 +2,13 @@ import 'dart:convert';
 
 import 'package:booking_extra/main.dart';
 import 'package:booking_extra/model/User.dart';
-import 'package:booking_extra/screen/print.dart';
-//import 'package:booking_extra/screen/printdemo2.dart';
-import 'package:booking_extra/screen/screenshot.dart';
 import 'package:booking_extra/screen/search.dart';
 import 'package:booking_extra/util/constant.dart';
 import 'package:booking_extra/util/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+
+import 'infoApp.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -25,6 +24,11 @@ class _LoginPageState extends State<LoginPage> {
   var userNmController = TextEditingController();
   var passwordController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   login() async {
     var map = new Map<String, dynamic>();
     map["UserNm"] = userNmController.text;
@@ -34,12 +38,13 @@ class _LoginPageState extends State<LoginPage> {
       Dialogs.showLoadingDialog(context, _keyLoader);
       print(host + '/Account/Validate');
       Client client = Client();
-      var res = await client.post(Uri.parse(host + '/Account/Validate'), body: jsonEncode(map), headers: header);
+      var res = await client.post(Uri.parse(host + '/Account/Validate'),
+          body: jsonEncode(map), headers: header);
       if (res.statusCode == 200) {
         MyApp.userNm = userNmController.text;
         MyApp.user = User.fromJson(json.decode(res.body));
         print(res.body);
-        Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
+        Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => SearchPage()),
@@ -50,8 +55,9 @@ class _LoginPageState extends State<LoginPage> {
         throw Exception('Server error');
       }
     } catch (ex) {
-      Navigator.of(_keyLoader.currentContext,rootNavigator: true).pop();
-      Dialogs.showMessage(context, "Đăng nhập thất bại", "Sai tên đăng nhập, mật khẩu hoặc tình trạng kết nối internet.");
+      Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
+      Dialogs.showMessage(context, "Đăng nhập thất bại",
+          "Sai tên đăng nhập, mật khẩu hoặc tình trạng kết nối internet.");
       print(ex);
     }
   }
@@ -126,45 +132,72 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: () async {
           login();
         },
-        child: Text("Đăng nhập", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text("Đăng nhập",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+
+    final checkUpdateButton = Material(
+      child: MaterialButton(
+        child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('App version:' + appVersion),
+              SizedBox(width: 25.0),
+              Icon(Icons.arrow_right, color: Color(0xff134F89)),
+            ]),
+        onPressed: () async {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => InfoAppPage()),
+          );
+        },
       ),
     );
 
     return Scaffold(
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child:Center(
-        child: Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 155.0,
-                  child: Image.asset(
-                    "assets/pqe-logo.png",
-                    fit: BoxFit.contain,
+        child: Center(
+          child: Container(
+            color: Colors.white,
+            height:MediaQuery.of(context).size.height,
+            child: Padding(
+              padding: const EdgeInsets.all(36.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: 155.0,
+                    child: Image.asset(
+                      "assets/pqe-logo.png",
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
-                SizedBox(height: 45.0),
-                userNmField,
-                SizedBox(height: 25.0),
-                passwordField,
-                SizedBox(
-                  height: 35.0,
-                ),
-                loginButton,
-                SizedBox(
-                  height: 15.0,
-                ),
-              ],
+                  SizedBox(height: 45.0),
+                  userNmField,
+                  SizedBox(height: 25.0),
+                  passwordField,
+                  SizedBox(
+                    height: 35.0,
+                  ),
+                  loginButton,
+                  SizedBox(
+                    height: 150,
+                  ),
+                  checkUpdateButton,
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),),
+      ),
     );
   }
 }

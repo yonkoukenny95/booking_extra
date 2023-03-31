@@ -52,6 +52,7 @@ class _PassengerPageState extends State<PassengerPage> {
   var listPrices = <TicketPrice>[];
   var emailTECs = <TextEditingController>[];
   bool isInitSuccess = false;
+  List<int> listTicketTypeAllow = [1, 2, 3];
 
   initValue() async {
     isInitSuccess=false;
@@ -85,10 +86,12 @@ class _PassengerPageState extends State<PassengerPage> {
       if (res.contentLength != 0) {
         var resultJson = json.decode(res.body);
         for (var element in resultJson) {
-          listTicketTypes.add(TicketType.fromJson(element));
+          if(listTicketTypeAllow.contains(element["TicketTypeId"]) ){
+            listTicketTypes.add(TicketType.fromJson(element));
+          }
         }
         //print(listTicketTypes.length);
-        _defaultType = listTicketTypes[0];
+        _defaultType = listTicketTypes.firstWhere((element) => element.typeID == 1);
       } else {
         print(res);
       }
@@ -98,22 +101,21 @@ class _PassengerPageState extends State<PassengerPage> {
   }
 
   _getTicketPrices() async {
-    print(
-        '$host/TicketPrice/GetTicketPriceByRouteId?routeId=${MyApp.order.routeId}&boatTypeId=${MyApp.order.voyage.boatTypeId}&DepartDate=${MyApp.order.voyage.departDate}');
+    print('$host/TicketPrice/GetTicketPriceByRouteId?routeId=${MyApp.order.routeId}&boatTypeId=${MyApp.order.voyage.boatTypeId}&DepartDate=${MyApp.order.voyage.departDate.substring(0,10)}');
     Client client = Client();
     var res = await client.get(
-        Uri.parse(
-            '$host/TicketPrice/GetTicketPriceByRouteId?routeId=${MyApp.order.routeId}&boatTypeId=${MyApp.order.voyage.boatTypeId}&DepartDate=${MyApp.order.voyage.departDate}'),
+        Uri.parse('$host/TicketPrice/GetTicketPriceByRouteId?routeId=${MyApp.order.routeId}&boatTypeId=${MyApp.order.voyage.boatTypeId}&DepartDate=${MyApp.order.voyage.departDate.substring(0,10)}'),
         headers: header);
-    print(res.statusCode);
-    print(res.body);
     if (res.statusCode == 200) {
       if (res.contentLength != 0) {
         var resultJson = json.decode(res.body);
         for (var element in resultJson) {
-          listTicketPrices.add(TicketPrice.fromJson(element));
+          if(listTicketTypeAllow.contains(element["TicketTypeId"]) ){
+            listTicketPrices.add(TicketPrice.fromJson(element));
+          }
+
         }
-        print(listTicketPrices.length);
+
       } else {
         print(res);
       }
@@ -123,17 +125,16 @@ class _PassengerPageState extends State<PassengerPage> {
   }
 
   _getSeatEmpty() async {
-    print(
-        '$host/Voyage/GetSeatsEmpty?VoyageId=${MyApp.order.voyage.voyageId}&DepartDate=${MyApp.order.voyage.departDate}');
+    print('$host/Voyage/GetSeatsEmpty?VoyageId=${MyApp.order.voyage.voyageId}&DepartDate=${MyApp.order.voyage.departDate}');
     Client client = Client();
     var res = await client.get(
-        Uri.parse(
-            '$urlBookingTicket/Voyage/GetSeatsEmpty?VoyageId=${MyApp.order.voyage.voyageId}&DepartDate=${MyApp.order.voyage.departDate}'),
+        Uri.parse('$urlBookingTicket/Voyage/GetSeatsEmpty?VoyageId=${MyApp.order.voyage.voyageId}&DepartDate=${MyApp.order.voyage.departDate}'),
         headers: header);
     if (res.statusCode == 200) {
       if (res.contentLength != 0) {
         var resultJson = json.decode(res.body);
         for (var element in resultJson) {
+
           listSeatEmpty.add(Seat.fromJson(element));
         }
         for (int i = 0; i < MyApp.order.numberPassengers; i++) {
@@ -260,7 +261,8 @@ class _PassengerPageState extends State<PassengerPage> {
             getTicketQR(resultJson['Data']['OrderNo'],
                 resultJson['Data']['PublishedDate']);
         } else {
-          throw Exception('Không tạo được đơn hàng');
+          Dialogs.showMessage(
+              context, "Thất bại", "Không tạo được đơn hàng.");
         }
       } catch (ex) {
         print(ex);
@@ -314,12 +316,14 @@ class _PassengerPageState extends State<PassengerPage> {
     var formKey = GlobalKey<FormState>();
     var idController = TextEditingController();
     var nameController = TextEditingController();
+
     var pobController = TextEditingController();
     var dobController = TextEditingController();
     var phoneController = TextEditingController();
     var nationalityController = TextEditingController();
     var emailController = TextEditingController();
     var ticketTypeController = TextEditingController();
+    var priceController = TextEditingController();
     TicketType ticketTypeChosen = _defaultType;
 
     formKeyList.add(formKey);
@@ -440,18 +444,29 @@ class _PassengerPageState extends State<PassengerPage> {
           if(text.length==4){
             var age = DateTime.now().year - int.parse(dobController.text);
             print(age);
-            if (age <= 12) {
+            TicketType newType;
+            TicketPrice newPrice;
+            if (age < 12) {
               idController.text = 'TE';
-              TicketType newValue = listTicketTypes
-                  .firstWhere((element) => element.text == "Vé trẻ em");
-              listTypes[index] = newValue;
-              ticketTypeTECs[index].text = newValue.text;
-            }else{
-              TicketType newValue = listTicketTypes
-                  .firstWhere((element) => element.text == "Vé người lớn");
-              listTypes[index] = newValue;
-              ticketTypeTECs[index].text = newValue.text;
+              newType = listTicketTypes
+                  .firstWhere((element) => element.value == 2);
+              listTypes[index] = newType;
+              ticketTypeTECs[index].text = newType.text;
+            }else if (age >= 60){
+               newType = listTicketTypes
+                  .firstWhere((element) => element.value == 3);
+              listTypes[index] = newType;
+              ticketTypeTECs[index].text = newType.text;
+            }else {
+               newType = listTicketTypes
+                  .firstWhere((element) => element.value == 1);
+              listTypes[index] = newType;
+              ticketTypeTECs[index].text = newType.text;
             }
+            //Xử lý giá
+            newPrice = listTicketPrices.firstWhere((element) => element.ticketTypeId == newType.value && element.ticketClass == listSeats[index].ticketClass);
+            listPrices[index] = newPrice;
+            priceController.text = "Giá: " +oCcy.format(listPrices[index].priceWithVAT.round()).toString() +" VND";
           }
         });
 
@@ -607,6 +622,19 @@ class _PassengerPageState extends State<PassengerPage> {
       phoneController.text = MyApp.order.bookerPhone;
     }
 
+    final priceField = TextFormField(
+      readOnly: true,
+      controller: priceController,
+      obscureText: false,
+      textAlign: TextAlign.right,
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.all(0),
+        border: InputBorder.none,
+      ),
+    );
+    priceController.text = "Giá: " +oCcy.format(listPrices[index].priceWithVAT.round()).toString() +" VND";
+
+
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       child: Column(children: <Widget>[
@@ -625,11 +653,7 @@ class _PassengerPageState extends State<PassengerPage> {
             ),
             SizedBox(width: 15.0),
             Expanded(
-                child: Text("Giá: " +
-                    oCcy
-                        .format(listPrices[index].priceWithVAT.round())
-                        .toString() +
-                    " VND") // <-- Wrapped in Expanded.
+                child: priceField // <-- Wrapped in Expanded.
                 )
           ]),
         ),

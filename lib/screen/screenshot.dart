@@ -138,8 +138,8 @@ class _ScreenShotPage extends State<ScreenShotPage> {
                     ),
                   ]),
                   SizedBox(height: 20),
-                  Text('Vui lòng có mặt 15 phút trước giờ tàu chạy tại '+ticket.harbor, style: TextStyle(fontSize: 15)),
-                  Text('Please be presented 30 minutes prior to the depart time at '+ticket.harbor, style: TextStyle(fontSize: 15)),
+                  //Text('Vui lòng có mặt 15 phút trước giờ tàu chạy tại '+ticket.harbor, style: TextStyle(fontSize: 15)),
+                  //Text('Please be presented 30 minutes prior to the depart time at '+ticket.harbor, style: TextStyle(fontSize: 15)),
                 ]),
           );
         });

@@ -9,6 +9,8 @@ class TicketPrice{
   String _ticketTypeLabel;
   String _tmpltNo;
   String _series;
+  DateTime _departDateBegin;
+  DateTime _departDateEnd;
 
   TicketPrice.fromJson(Map<String, dynamic> parsedJson){
     _originalPrice=parsedJson['OriginalPrice'];
@@ -21,10 +23,12 @@ class TicketPrice{
     _ticketTypeLabel=parsedJson['TicketTypeLabel'];
     _tmpltNo=parsedJson['TmpltNo'];
     _series=parsedJson['Series'];
+    _departDateBegin=parsedJson['DepartDateBegin'];
+    _departDateEnd=parsedJson['DepartDateEnd'];
   }
 
   TicketPrice(this._originalPrice, this._priceWithVAT, this._routeId, this._seatId, this._ticketClass, this._ticketPriceId, this._ticketTypeId,
-      this._ticketTypeLabel, this._tmpltNo, this._series);
+      this._ticketTypeLabel, this._tmpltNo, this._series, this._departDateBegin, this._departDateEnd);
 
   String get series => _series;
 
@@ -45,4 +49,6 @@ class TicketPrice{
   double get priceWithVAT => _priceWithVAT;
 
   double get originalPrice => _originalPrice;
+  DateTime get departDateBegin => _departDateBegin;
+  DateTime get departDateEnd => _departDateEnd;
 }
